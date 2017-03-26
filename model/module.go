@@ -17,7 +17,7 @@ type Module struct {
 	//参数列表
 	Args Args `yaml:"args"`
 	//功能组合
-	Task []Func `yaml:"task"`
+	Task []FuncCall `yaml:"task"`
 	//返回值定义
 	Return string `yaml:"return"`
 }

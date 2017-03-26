@@ -7,7 +7,7 @@ type Task struct {
 	//描述
 	Desc string `yaml:"desc"`
 	//功能组合
-	Exec []Func `yaml:"exec"`
+	Exec []FuncCall `yaml:"exec"`
 }
 
 func NewTask() *Task {

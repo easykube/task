@@ -1,7 +1,9 @@
 package model
 
 import (
-	"fmt"
+	io "io/ioutil"
+
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/flosch/pongo2"
 )
@@ -32,9 +34,25 @@ type Func struct {
 	Return string `yaml:"return"`
 }
 
+const (
+	funcExt string = ".yaml"
+)
+
+//功能调用
+type FuncCall struct {
+	Func string `yaml:"func"`
+	//参数列表
+	Args Args `yaml:"args"`
+}
+
 //创建Func
 func NewFunc() *Func {
 	return &Func{Args: NewArgs()}
+}
+
+//新建FuncCall
+func NewFuncCall(name string, args Args) *FuncCall {
+	return &FuncCall{Func: name, Args: args}
 }
 
 //IFunc
@@ -64,23 +82,15 @@ func (this *Func) Execute(host IHost, args Args) {
 	}
 	context := pongo2.Context{}
 	AddArgsToContext(args, context)
-	println("context")
-	for k, v := range context {
-		println(k + "=")
-		println(v)
-	}
 	line, err := tpl.Execute(context)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("cmdline===")
-	fmt.Println(line)
+
 	out, err := host.Run(line)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("out===")
-	fmt.Println(out)
 
 	context = pongo2.Context{}
 	context["out"] = out
@@ -90,4 +100,33 @@ func (this *Func) Execute(host IHost, args Args) {
 		panic(err)
 	}
 	this.Return = out
+}
+
+//加载功能
+//funcFile,含路径，不含后缀
+func (this *Func) Load(funcFile string) error {
+	file := funcFile + funcExt
+	data, err := io.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	datayaml := []byte(data)
+	err = yaml.Unmarshal(datayaml, this)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+//保存功能
+//funcFile,含路径，不含后缀
+func (this *Func) Save(funcFile string) error {
+	file := funcFile + funcExt
+	data, err := yaml.Marshal(this)
+	if err != nil {
+		return err
+	}
+	err = io.WriteFile(file, data, 0777)
+	return err
 }

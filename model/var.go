@@ -24,7 +24,7 @@ const (
 	varsFilename string = ".var.yaml"
 )
 
-type Vars []Var
+type Vars []*Var
 
 func NewVar() *Var {
 	return &Var{}
@@ -51,18 +51,25 @@ func GetEnvVars() Vars {
 	return vs
 }
 
-func (vs Vars) Load(baseFileName string) error {
+func (vs Vars) Add(name, val string) {
+	a := NewVar()
+	a.Var = name
+	a.Val = val
+	vs = append(vs, a)
+}
+
+func (vs Vars) Load(baseFileName string) (Vars, error) {
 	file := baseFileName + varsFilename
 	data, err := io.ReadFile(file)
 	if err != nil {
-		return err
+		return vs, err
 	}
 	datayaml := []byte(data)
 	err = yaml.Unmarshal(datayaml, vs)
 	if err != nil {
-		return err
+		return vs, err
 	}
-	return nil
+	return vs, err
 
 }
 

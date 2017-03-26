@@ -8,10 +8,7 @@ import (
 )
 
 func AddArgsToContext(args Args, context pongo2.Context) {
-	println("AddArgsToContext")
 	for _, arg := range args {
-		println(arg.Arg)
-		println(arg.Val)
 		context[arg.Arg] = arg.Val
 	}
 }
